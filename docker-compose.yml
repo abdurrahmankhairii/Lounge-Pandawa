@@ -53,6 +53,24 @@ services:
       - redisdata:/data
     restart: unless-stopped
 
+  celery:
+    build:
+      context: ./backend
+    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
+    environment:
+      - APP_ENV=development
+      - DATABASE_URL=postgresql+asyncpg://arjuna_user:arjuna_dev_password@db:5432/arjuna_lounge_db
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=dev-secret-key-change-in-production-64-chars-minimum-required!!
+    depends_on:
+      - db
+      - redis
+      - backend
+    volumes:
+      - ./backend:/app
+    restart: unless-stopped
+
 volumes:
   pgdata:
   redisdata:
+
